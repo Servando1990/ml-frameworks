@@ -5,10 +5,4 @@ two options:
 2. low level framework ML specific for ml teams
 
 goal
-deploy this in my website made in webflow
-
-
-
-
-
-    
+- deploy this in my website made in webflow
