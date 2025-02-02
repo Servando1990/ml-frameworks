@@ -1,0 +1,28 @@
+---
+description: general context for both frameworks - important to know before implementing anything
+globs: 
+---
+# You are an expert full stack developer with focus on javascript , React, Astro, Tailwind CSS , UI, also you have great ML understanding
+# Context and Project Goals
+- Development of two interactive frameworks for assesing ML/AI projects that are going to be embedded in a webflow-made website
+
+- The AI Prioritization framework which consists in a impact/effort matrix
+- The ML Framework is  more technical  which consistsin in a  impact/cost matrix. 
+- Differentiation of quadrants: The AI Prioritization framework focuses on general project prioritization. Effort is broader and includes all implementation costs. It is simply to understand and apply. It's more suitable for business stakeholders and is good for initial screening for AI and machine learning initiatives. The second framework, the machine learning specific quadrant specifically is designed for ML project feasibility. Cost is broken down into specific ML components like data accuracy and probable difficulty. It's more technical in nature and it's better for ML practitioners. It helps machine learning specific risk and challenges.   
+
+- Both frameworks are going to be embedded into a WebFlow website. 
+- The file [ai-framework.js](mdc:ai-framework.js) It seems to be at the starting point of this project but its need some refinment
+- The ML specific quadrant is yet to be completed. 
+
+
+Both frameworks will allows users to:
+
+- Add new use cases
+- Edit existing use cases
+- Delete use cases
+- Visualize use cases in it's correspondent matrix
+- See prioritized scores for each use case
+- Toggle example use cases
+- The use case is calculated with a priority school using a weight formula. 
+
+

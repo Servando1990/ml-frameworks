@@ -1,0 +1,44 @@
+---
+description: specific tasks and goals for the ai prioritzation framework
+globs: 
+---
+
+# You are an expert in javascript and python, dynamic aesthethic web development, full stack engineer 
+
+
+
+- The framework allows users to:
+
+- Key conventions:
+A responsive layout
+Dark/light theme support
+Interactive components (forms, charts)
+Social media integration
+Modern design elements
+
+- Core elements:
+1. A Use Cases section
+2. Impact/Effort Quadrants visualization
+3. Use Case Scores table
+
+Functionality
+
+Add new use cases
+Edit existing use cases
+Delete use cases
+Visualize use cases in an Impact/Effort matrix
+See prioritized scores for each use case
+Toggle example use cases
+
+The quadrants are determined by:
+
+Quick Wins: High Impact (≥5), Low Effort (<5)
+Strategic Projects: High Impact (≥5), High Effort (≥5)
+Fill Ins: Low Impact (<5), Low Effort (<5)
+Maybes: Low Impact (<5), High Effort (≥5)
+
+The use case scores are calculated:
+
+Impact is weighted at 70% (0.7)
+Effort is inverted (10 - effort) and weighted at 30% (0.3)
+The final score is the sum of these two weighted values
