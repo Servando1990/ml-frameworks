@@ -42,3 +42,7 @@ The use case scores are calculated:
 Impact is weighted at 70% (0.7)
 Effort is inverted (10 - effort) and weighted at 30% (0.3)
 The final score is the sum of these two weighted values
+
+
+
+

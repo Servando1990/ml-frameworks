@@ -1,0 +1,103 @@
+---
+description: predefined questions that are going that are going to customized by the user to add a use case in the ai-priotiization framework
+globs: 
+---
+In the quadra of AI- priorization framweowork the user can add a new use case that is going to be calcualte by the score
+
+when adding a new use case here are the list of pre-defined questions with the optional answeres in the form of a slide
+ 
+How often is this task performed?
+Not relevant
+
+Rarely (monthly or less)
+Occasionally (weekly)
+Frequently (daily)
+Continuously (multiple times per day)
+
+What percentage of employees perform this task?
+Not relevant
+
+Less than 10%
+10-30%
+31-60%
+More than 60%
+
+On average, how time-consuming is this task?
+Not relevant
+
+Quick (< 15 minutes)
+Moderate (15-60 minutes)
+Lengthy (1-4 hours)
+Very time-intensive (> 4 hours)
+
+How much would AI improve the quality of the task output?
+Not relevant
+
+Minimal improvement
+Moderate improvement
+Significant improvement
+Transformative improvement
+
+How much would this AI implementation enhance our competitive advantage?
+Not relevant
+
+Minimal impact
+Some differentiation
+Clear competitive advantage
+Industry-leading innovation
+
+Have existing AI tools been tried for this task?
+Not relevant
+
+Not yet attempted
+Attempted with poor results
+Attempted with moderate success
+Successfully implemented
+
+How many data sources does this task typically involve?
+Not relevant
+
+Single source
+2-3 sources
+4-6 sources
+7+ sources
+
+What's the ideal way to interact with the AI for this task?
+Not relevant
+
+Simple chat interface
+Integrated web/mobile app
+API for system integration
+Customer-facing AI solution
+
+How sensitive is the data involved in this task?
+Not relevant
+
+Public data
+Internal, non-sensitive data
+Confidential business data
+Highly sensitive or regulated data
+
+How scalable should the AI solution be for this task?
+Not relevant
+
+Limited scale (team/department)
+Company-wide scale
+Industry-wide potential
+Multi-industry or global scale
+
+Estimated time to implement and deploy the AI solution:
+Not relevant
+
+Quick win (< 1 month)
+Short-term (1-3 months)
+Medium-term (3-6 months)
+Long-term (6+ months)
+
+Expected return on investment (ROI) timeframe:
+Not relevant
+
+Immediate (< 3 months)
+Short-term (3-6 months)
+Medium-term (6-12 months)
+Long-term (> 12 months)

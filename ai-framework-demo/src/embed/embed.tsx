@@ -1,6 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import AIPrioritizationFramework from '@/components/AIPrioritizationFramework';
+import { createRoot } from 'react-dom/client';    
+import { AIPrioritizationFramework } from '../../components/AIPrioritizationFramework';
 import './styles/embed.css';
 
 declare global {
@@ -9,14 +9,14 @@ declare global {
   }
 }
 
-window.initPrioritizationFramework = (elementId: string) => {
+window.initPrioritizationFramework = (elementId: string): void => {
   const container = document.getElementById(elementId);
   if (container) {
-    ReactDOM.render(
+    const root = createRoot(container);
+    root.render(
       <div className="ai-framework-container">
         <AIPrioritizationFramework />
-      </div>, 
-      container
+      </div>
     );
   }
 }; 
