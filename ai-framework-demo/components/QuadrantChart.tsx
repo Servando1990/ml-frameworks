@@ -63,11 +63,11 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
           {/* Quadrant backgrounds */}
           <ReferenceArea 
             x1={0} x2={5} y1={5} y2={10}
-            fill="rgba(248, 113, 113, 0.05)"
+            fill="rgba(74, 222, 128, 0.05)"
             label={{ 
-              value: "Optimization Zone",
+              value: "Quick Wins",
               position: "center",
-              fill: "rgba(248, 113, 113, 0.6)",
+              fill: "rgba(74, 222, 128, 0.6)",
               fontSize: 11
             }}
           />
@@ -93,11 +93,11 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
           />
           <ReferenceArea 
             x1={5} x2={10} y1={0} y2={5}
-            fill="rgba(74, 222, 128, 0.05)"
+            fill="rgba(248, 113, 113, 0.05)"
             label={{ 
-              value: "Quick Wins",
+              value: "Optimization Zone",
               position: "center",
-              fill: "rgba(74, 222, 128, 0.6)",
+              fill: "rgba(248, 113, 113, 0.6)",
               fontSize: 11
             }}
           />
