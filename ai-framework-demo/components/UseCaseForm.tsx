@@ -85,8 +85,49 @@ const PREDEFINED_QUESTIONS: Question[] = [
     id: 'roi',
     text: 'Expected return on investment (ROI) timeframe:',
     options: ['Not relevant', 'Immediate (< 3 months)', 'Short-term (3-6 months)', 'Medium-term (6-12 months)', 'Long-term (> 12 months)']
+  },
+  {
+    id: 'finiteInputs',
+    text: 'Is there a finite enough set of inputs known in advance?',
+    options: ['Not relevant', 'No', 'Yes'],
+    required: true
+  },
+  {
+    id: 'asyncResponses',
+    text: 'Is it ok to return responses asynchronously in minutes?',
+    options: ['Not relevant', 'No', 'Yes'],
+    required: true
+  },
+  {
+    id: 'performanceNeeds',
+    text: 'Do you require large scale or low latency?',
+    options: ['Not relevant', 'No', 'Yes'],
+    required: true
+  },
+  {
+    id: 'selfOperation',
+    text: 'Are you comfortable operating services by yourself?',
+    options: ['Not relevant', 'No', 'Yes'],
+    required: true
+  },
+  {
+    id: 'implementationType',
+    text: 'What type of implementation is most suitable?',
+    options: ['Not relevant', 'Precompute responses', 'Trigger workflow', 'Deploy simple service', 'Deploy advanced stack', 'Use managed service'],
+    required: true
   }
 ];
+
+interface Step {
+  title: string;
+  fields?: {
+    id: string;
+    label: string;
+    type: string;
+    placeholder: string;
+  }[];
+  questions?: Question[];
+}
 
 export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -96,7 +137,7 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
     answers: {}
   });
 
-  const steps = [
+  const steps: Step[] = [
     {
       title: 'Basic Information',
       fields: [
@@ -115,12 +156,29 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
       ]
     },
     {
-      title: 'Impact Assessment',
-      questions: PREDEFINED_QUESTIONS.slice(0, 4)
+      title: 'Business Impact Assessment',
+      questions: PREDEFINED_QUESTIONS.slice(0, 6)
     },
     {
-      title: 'Implementation Details',
-      questions: PREDEFINED_QUESTIONS.slice(4, 8)
+      title: 'Technical Requirements',
+      questions: [
+        PREDEFINED_QUESTIONS.find(q => q.id === 'finiteInputs'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'asyncResponses'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'performanceNeeds'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'dataSources'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'aiInteraction')
+      ].filter((q): q is Question => q !== undefined)
+    },
+    {
+      title: 'Implementation Considerations',
+      questions: [
+        PREDEFINED_QUESTIONS.find(q => q.id === 'selfOperation'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'implementationType'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'dataSensitivity'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'scalability'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'implementationTime'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'roi')
+      ].filter((q): q is Question => q !== undefined)
     }
   ];
 
@@ -139,7 +197,10 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
       formData.answers?.competitiveAdvantage,
       formData.answers?.employeePercentage,
       formData.answers?.taskFrequency,
-      formData.answers?.roi
+      formData.answers?.roi,
+      formData.answers?.finiteInputs,
+      formData.answers?.asyncResponses,
+      formData.answers?.performanceNeeds
     ];
     
     // Calculate effort score based on relevant questions (0-10 scale)
@@ -148,12 +209,40 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
       formData.answers?.dataSources,
       formData.answers?.dataSensitivity,
       formData.answers?.implementationTime,
-      formData.answers?.scalability
+      formData.answers?.scalability,
+      formData.answers?.selfOperation,
+      formData.answers?.implementationType
     ];
 
-    // Convert answers to numeric scores (0-4 scale, where 'Not relevant' = 0)
-    const getNumericScore = (answer: string | undefined) => {
+    // Convert answers to numeric scores
+    const getNumericScore = (answer: string | undefined, questionId: string) => {
       if (!answer || answer === 'Not relevant') return 0;
+      
+      // Special scoring for new questions
+      if (questionId === 'finiteInputs') {
+        return answer === 'Yes' ? 3 : 5;
+      }
+      if (questionId === 'asyncResponses') {
+        return answer === 'Yes' ? 2 : 4;
+      }
+      if (questionId === 'performanceNeeds') {
+        return answer === 'Yes' ? 5 : 2;
+      }
+      if (questionId === 'selfOperation') {
+        return answer === 'Yes' ? 4 : 2;
+      }
+      if (questionId === 'implementationType') {
+        const scores: Record<string, number> = {
+          'Precompute responses': 2,
+          'Trigger workflow': 3,
+          'Deploy simple service': 3,
+          'Deploy advanced stack': 5,
+          'Use managed service': 2
+        };
+        return scores[answer] || 0;
+      }
+
+      // Default scoring for original questions
       const options = PREDEFINED_QUESTIONS.find(q => q.options.includes(answer))?.options || [];
       const index = options.indexOf(answer);
       return index > 0 ? index : 0;
@@ -161,13 +250,17 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
 
     // Calculate average scores and scale to 1-10
     const impact = Math.round(
-      (impactFactors.reduce((sum, factor) => sum + getNumericScore(factor), 0) / 
-      impactFactors.length) * 2.5
+      impactFactors.reduce((sum, factor, index) => 
+        sum + getNumericScore(factor, ['aiImprovement', 'competitiveAdvantage', 'employeePercentage', 
+        'taskFrequency', 'roi', 'finiteInputs', 'asyncResponses', 'performanceNeeds'][index]), 0) / 
+      impactFactors.length * 2.5
     );
 
     const effort = Math.round(
-      (effortFactors.reduce((sum, factor) => sum + getNumericScore(factor), 0) / 
-      effortFactors.length) * 2.5
+      effortFactors.reduce((sum, factor, index) => 
+        sum + getNumericScore(factor, ['timeConsuming', 'dataSources', 'dataSensitivity', 
+        'implementationTime', 'scalability', 'selfOperation', 'implementationType'][index]), 0) / 
+      effortFactors.length * 2.5
     );
     
     onSubmit({
@@ -192,7 +285,7 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
 
       <div className="space-y-4">
         {currentStep === 0 ? (
-          steps[0].fields.map(field => (
+          steps[0].fields?.map(field => (
             <div key={field.id}>
               <label className="block text-sm mb-1">{field.label}</label>
               {field.type === 'textarea' ? (
@@ -216,7 +309,7 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
           ))
         ) : (
           <div className="space-y-4">
-            {steps[currentStep].questions.map(question => (
+            {steps[currentStep].questions?.map(question => (
               <div key={question.id}>
                 <label className="block text-sm mb-1">{question.text}</label>
                 <select
