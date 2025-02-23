@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer, ReferenceArea } from 'recharts';
 
@@ -18,6 +20,13 @@ const getQuadrantColor = (impact: number, effort: number): string => {
   if (impact >= 5 && effort >= 5) return "#60a5fa"; // Blue for Strategic Ventures
   if (impact < 5 && effort < 5) return "#facc15"; // Yellow for Foundation Labs
   return "#f87171"; // Red for Optimization Zone
+};
+
+const getQuadrantName = (impact: number, effort: number): string => {
+  if (impact >= 5 && effort < 5) return "Quick Wins";
+  if (impact >= 5 && effort >= 5) return "Strategic Ventures";
+  if (impact < 5 && effort < 5) return "Foundation Labs";
+  return "Optimization Zone";
 };
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -41,13 +50,6 @@ const CustomTooltip = ({ active, payload }: any) => {
     );
   }
   return null;
-};
-
-const getQuadrantName = (impact: number, effort: number): string => {
-  if (impact >= 5 && effort < 5) return "Quick Wins";
-  if (impact >= 5 && effort >= 5) return "Strategic Ventures";
-  if (impact < 5 && effort < 5) return "Foundation Labs";
-  return "Optimization Zone";
 };
 
 const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
@@ -163,7 +165,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
                 cx={props.cx}
                 cy={props.cy}
                 r={4}
-                fill={props.fill}
+                fill={props.payload.fill}
                 fillOpacity={0.8}
                 stroke="rgba(255,255,255,0.2)"
                 strokeWidth={1}
@@ -185,4 +187,4 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
   );
 };
 
-export default QuadrantChart; 
+export default QuadrantChart;

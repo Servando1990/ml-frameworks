@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 
 interface Question {
@@ -10,14 +12,15 @@ interface Question {
 interface UseCaseFormProps {
   onSubmit: (useCase: UseCase) => void;
   onCancel: () => void;
+  initialUseCase?: UseCase | null;
 }
 
 interface UseCase {
-  name: string; 
+  name: string;
   description: string;
   impact: number;
   effort: number;
-  answers: Record<string, string>;
+  answers?: Record<string, string>;
 }
 
 const PREDEFINED_QUESTIONS: Question[] = [
@@ -129,12 +132,12 @@ interface Step {
   questions?: Question[];
 }
 
-export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
+export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Partial<UseCase>>({
-    name: '',
-    description: '',
-    answers: {}
+    name: initialUseCase?.name || '',
+    description: initialUseCase?.description || '',
+    answers: initialUseCase?.answers || {}
   });
 
   const steps: Step[] = [
@@ -272,6 +275,17 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
     });
   };
 
+  const isStepValid = () => {
+    if (currentStep === 0) {
+      return formData.name && formData.description;
+    }
+    
+    const currentQuestions = steps[currentStep].questions || [];
+    const requiredQuestions = currentQuestions.filter(q => q.required);
+    
+    return requiredQuestions.every(q => formData.answers?.[q.id]);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
@@ -311,7 +325,10 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
           <div className="space-y-4">
             {steps[currentStep].questions?.map(question => (
               <div key={question.id}>
-                <label className="block text-sm mb-1">{question.text}</label>
+                <label className="block text-sm mb-1">
+                  {question.text}
+                  {question.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
                 <select
                   value={formData.answers?.[question.id] || ''}
                   onChange={e => setFormData({
@@ -354,7 +371,12 @@ export function UseCaseForm({ onSubmit, onCancel }: UseCaseFormProps) {
         <button
           type="button"
           onClick={handleNext}
-          className="px-4 py-1.5 rounded-lg bg-[#F4F5F8]/10 hover:bg-[#F4F5F8]/20 text-sm"
+          disabled={!isStepValid()}
+          className={`px-4 py-1.5 rounded-lg text-sm ${
+            isStepValid()
+              ? 'bg-[#F4F5F8]/10 hover:bg-[#F4F5F8]/20'
+              : 'bg-[#F4F5F8]/5 text-[#F4F5F8]/40 cursor-not-allowed'
+          }`}
         >
           {currentStep === steps.length - 1 ? 'Submit' : 'Next'}
         </button>

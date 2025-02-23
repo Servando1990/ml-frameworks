@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+'use client';
+
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Scatter, ReferenceArea } from 'recharts';
 import { UseCaseForm } from './UseCaseForm';
-  
+
 // Dynamically import the chart component with SSR disabled
 const QuadrantChart = dynamic(
   () => import('./QuadrantChart'),
@@ -24,7 +26,11 @@ interface UseCaseProps {
   onEdit: (useCase: UseCase) => void;
 }
 
-const UseCase: React.FC<UseCaseProps> = ({ useCase, onDelete, onEdit }) => (
+interface UseCaseScoresProps {
+  useCases: UseCase[];
+}
+
+const UseCase = ({ useCase, onDelete, onEdit }: UseCaseProps) => (
   <li className="p-4 border border-black/20 dark:border-white/20 rounded-lg">
     <div className="flex justify-between items-start gap-4">
       <div>
@@ -71,11 +77,7 @@ const UseCase: React.FC<UseCaseProps> = ({ useCase, onDelete, onEdit }) => (
   </li>
 );
 
-interface QuadrantChartProps {
-  useCases: UseCase[];
-}
-
-const UseCaseScores: React.FC<UseCaseScoresProps> = ({ useCases }) => {
+const UseCaseScores = ({ useCases }: UseCaseScoresProps) => {
   const sortedUseCases = [...useCases].sort((a, b) => getPriorityScore(b) - getPriorityScore(a));
 
   return (
@@ -102,13 +104,15 @@ const UseCaseScores: React.FC<UseCaseScoresProps> = ({ useCases }) => {
   );
 };
 
-const AIPrioritizationFramework: React.FC = () => {
+export function AIPrioritizationFramework() {
   const [useCases, setUseCases] = useState<UseCase[]>([]);
   const [showExamples, setShowExamples] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingUseCase, setEditingUseCase] = useState<UseCase | null>(null);
 
-  const handleAddUseCase = (useCase: UseCase) => {
+  const handleAddUseCase = (useCase: Omit<UseCase, 'id'>) => {
     setUseCases([...useCases, { ...useCase, id: Date.now() }]);
+    setShowForm(false);
   };
 
   const handleDeleteUseCase = (id: number) => {
@@ -119,6 +123,8 @@ const AIPrioritizationFramework: React.FC = () => {
     setUseCases(useCases.map(useCase => 
       useCase.id === updatedUseCase.id ? updatedUseCase : useCase
     ));
+    setEditingUseCase(null);
+    setShowForm(false);
   };
 
   return (
@@ -131,10 +137,17 @@ const AIPrioritizationFramework: React.FC = () => {
         <div className="max-w-2xl mx-auto w-full border border-[#F4F5F8]/20 rounded-lg p-4">
           <UseCaseForm
             onSubmit={(useCase) => {
-              handleAddUseCase({ ...useCase, id: Date.now() });
-              setShowForm(false);
+              if (editingUseCase) {
+                handleEditUseCase({ ...useCase, id: editingUseCase.id });
+              } else {
+                handleAddUseCase(useCase);
+              }
             }}
-            onCancel={() => setShowForm(false)}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingUseCase(null);
+            }}
+            initialUseCase={editingUseCase}
           />
         </div>
       ) : (
@@ -158,7 +171,10 @@ const AIPrioritizationFramework: React.FC = () => {
                 key={useCase.id}
                 useCase={useCase}
                 onDelete={handleDeleteUseCase}
-                onEdit={handleEditUseCase}
+                onEdit={(useCase) => {
+                  setEditingUseCase(useCase);
+                  setShowForm(true);
+                }}
               />
             ))}
           </ul>
@@ -183,7 +199,7 @@ const AIPrioritizationFramework: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 // Helper functions
 function getQuadrantColor(impact: number, effort: number): string {
@@ -202,6 +218,4 @@ function getQuadrant(impact: number, effort: number): string {
 
 function getPriorityScore(useCase: UseCase) {
   return (useCase.impact * 0.7) + ((10 - useCase.effort) * 0.3);
-}
-
-export { AIPrioritizationFramework };
+} 
