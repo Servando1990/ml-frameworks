@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@geist-ui/core": "^2.3.8",
+    "geist": "^1.3.1",
+    "recharts": "^2.15.1"
+  },
+  "scripts": {
+    "build:embed": "node build-embed.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2"
+  }
+}
