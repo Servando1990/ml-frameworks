@@ -137,6 +137,8 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
   const [formData, setFormData] = useState<Partial<UseCase>>({
     name: initialUseCase?.name || '',
     description: initialUseCase?.description || '',
+    impact: initialUseCase?.impact,
+    effort: initialUseCase?.effort,
     answers: initialUseCase?.answers || {}
   });
 
@@ -194,6 +196,61 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
   };
 
   const handleSubmit = () => {
+    // If we're editing an existing use case and have impact and effort values, use those
+    if (initialUseCase?.impact && initialUseCase?.effort) {
+      onSubmit({
+        name: formData.name as string,
+        description: formData.description as string,
+        impact: initialUseCase.impact,
+        effort: initialUseCase.effort,
+        answers: formData.answers as Record<string, string>
+      });
+      return;
+    }
+
+    /**
+     * CALCULATION METHOD DOCUMENTATION
+     * 
+     * The AI Prioritization Framework uses a weighted scoring system to calculate 
+     * priority scores for each use case based on impact and effort.
+     * 
+     * OVERALL FORMULA:
+     * Priority Score = (Impact × 0.7) + ((10 - Effort) × 0.3)
+     * 
+     * IMPACT CALCULATION (70% weight):
+     * Impact is calculated from the following factors:
+     * 1. AI Improvement: How much AI would improve task quality
+     * 2. Competitive Advantage: Business differentiation potential
+     * 3. Employee Percentage: What % of employees perform this task
+     * 4. Task Frequency: How often the task is performed
+     * 5. ROI Timeframe: Expected return on investment period
+     * 6. Finite Inputs: Whether there's a finite set of inputs
+     * 7. Async Responses: Whether async responses are acceptable
+     * 8. Performance Needs: Large scale or low latency requirements
+     * 
+     * EFFORT CALCULATION (30% weight, inverted):
+     * Effort is calculated from the following factors:
+     * 1. Time Consuming: How time-intensive the task is
+     * 2. Data Sources: Number of data sources involved
+     * 3. Data Sensitivity: Level of data sensitivity/regulation
+     * 4. Implementation Time: Estimated time to implement
+     * 5. Scalability: Required scale of the solution
+     * 6. Self Operation: Comfort with self-operating services
+     * 7. Implementation Type: Type of implementation needed
+     * 
+     * SCORING METHODOLOGY:
+     * - Most questions are scored on a 0-4 scale based on option position
+     * - Special questions have custom scoring (e.g., Yes/No questions)
+     * - Scores are averaged and scaled to a 1-10 range
+     * - Final priority score is weighted: 70% impact, 30% inverted effort
+     * 
+     * QUADRANT PLACEMENT:
+     * - Quick Wins: High Impact (≥5), Low Effort (<5)
+     * - Strategic Ventures: High Impact (≥5), High Effort (≥5)
+     * - Foundation Labs: Low Impact (<5), Low Effort (<5)
+     * - Optimization Zone: Low Impact (<5), High Effort (≥5)
+     */
+
     // Calculate impact score based on relevant questions (0-10 scale)
     const impactFactors = [
       formData.answers?.aiImprovement,

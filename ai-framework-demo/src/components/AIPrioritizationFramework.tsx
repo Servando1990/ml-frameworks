@@ -81,26 +81,28 @@ const UseCaseScores = ({ useCases }: UseCaseScoresProps) => {
   const sortedUseCases = [...useCases].sort((a, b) => getPriorityScore(b) - getPriorityScore(a));
 
   return (
-    <table className="w-full border-collapse">
-      <thead>
-        <tr className="bg-black/5 dark:bg-white/5">
-          <th className="text-left p-3">#</th>
-          <th className="text-left p-3">Use case</th>
-          <th className="text-left p-3">Priority Score</th>
-          <th className="text-left p-3">Quadrant</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortedUseCases.map((useCase, index) => (
-          <tr key={useCase.id} className="border-t border-black/10 dark:border-white/10">
-            <td className="p-3">{index + 1}</td>
-            <td className="p-3">{useCase.name}</td>
-            <td className="p-3">{getPriorityScore(useCase).toFixed(1)}</td>
-            <td className="p-3">{getQuadrant(useCase.impact, useCase.effort)}</td>
+    <div className="w-full border-collapse">
+      <table className="w-full">
+        <thead>
+          <tr className="bg-black/5 dark:bg-white/5">
+            <th className="text-left p-3">#</th>
+            <th className="text-left p-3">Use case</th>
+            <th className="text-left p-3">Priority Score</th>
+            <th className="text-left p-3">Quadrant</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {sortedUseCases.map((useCase, index) => (
+            <tr key={useCase.id} className="border-t border-black/10 dark:border-white/10">
+              <td className="p-3">{index + 1}</td>
+              <td className="p-3">{useCase.name}</td>
+              <td className="p-3">{getPriorityScore(useCase).toFixed(1)}</td>
+              <td className="p-3">{getQuadrant(useCase.impact, useCase.effort)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
@@ -127,9 +129,17 @@ export function AIPrioritizationFramework() {
     setShowForm(false);
   };
 
+  // Function to start editing a use case
+  const startEditingUseCase = (useCase: UseCase) => {
+    setEditingUseCase(useCase);
+    setShowForm(true);
+  };
+
   return (
     <div className="flex flex-col gap-8">
-      <div className="h-[400px] border border-[#F4F5F8]/20 rounded-xl overflow-hidden">
+      <h1 className="text-3xl font-bold text-center mb-6">AI Prioritization Framework</h1>
+      
+      <div className="h-[400px] border border-[#F4F5F8]/20 rounded-xl overflow-hidden mt-4">
         <QuadrantChart useCases={useCases} />
       </div>
 
@@ -171,30 +181,47 @@ export function AIPrioritizationFramework() {
                 key={useCase.id}
                 useCase={useCase}
                 onDelete={handleDeleteUseCase}
-                onEdit={(useCase) => {
-                  setEditingUseCase(useCase);
-                  setShowForm(true);
-                }}
+                onEdit={startEditingUseCase}
               />
             ))}
           </ul>
         </div>
       </div>
 
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold">Use Case Scores</h3>
-          <div className="relative inline-block">
-            <button className="flex gap-2 items-center text-sm px-2 py-1 hover:bg-[#F4F5F8]/5 text-[#F4F5F8]/60 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="size-4" fill="currentColor" viewBox="0 0 256 256">
-                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Z"></path>
-              </svg>
-              How is this calculated?
-            </button>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-2">
+          <h3 className="text-lg font-semibold mb-2">Use Case Scores</h3>
+          <div className="overflow-hidden rounded-lg border border-[#F4F5F8]/20">
+            <UseCaseScores useCases={useCases} />
           </div>
         </div>
-        <div className="overflow-hidden rounded-lg border border-[#F4F5F8]/20">
-          <UseCaseScores useCases={useCases} />
+        
+        <div className="border border-[#F4F5F8]/20 rounded-lg p-5 bg-black/5 dark:bg-[#F4F5F8]/5 h-fit">
+          <h3 className="text-lg font-semibold mb-3">Calculation Method</h3>
+          <div className="text-sm space-y-3">
+            <div>
+              <p className="font-medium mb-1">Priority Score Formula:</p>
+              <p className="font-mono bg-black/10 dark:bg-white/10 p-2 rounded inline-block">
+                (Impact × 0.7) + ((10 - Effort) × 0.3)
+              </p>
+            </div>
+            <div>
+              <p className="font-medium mb-1">Weighting:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Impact: 70% weight (higher is better)</li>
+                <li>Effort: 30% weight (lower is better, inverted as 10-Effort)</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium mb-1">Quadrants:</p>
+              <ul className="space-y-1">
+                <li><span className="inline-block w-3 h-3 bg-[#16a34a] mr-2 rounded-full"></span>Quick Wins: High Impact, Low Effort</li>
+                <li><span className="inline-block w-3 h-3 bg-[#2563eb] mr-2 rounded-full"></span>Strategic Ventures: High Impact, High Effort</li>
+                <li><span className="inline-block w-3 h-3 bg-[#ca8a04] mr-2 rounded-full"></span>Foundation Labs: Low Impact, Low Effort</li>
+                <li><span className="inline-block w-3 h-3 bg-[#dc2626] mr-2 rounded-full"></span>Optimization Zone: Low Impact, High Effort</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
