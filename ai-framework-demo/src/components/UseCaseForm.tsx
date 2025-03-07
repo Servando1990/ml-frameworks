@@ -23,6 +23,42 @@ interface UseCase {
   answers?: Record<string, string>;
 }
 
+// Add a new type for implementation types
+interface ImplementationType {
+  name: string;
+  description: string;
+  score: number;
+}
+
+// Implementation types from Outerbounds article
+const IMPLEMENTATION_TYPES: ImplementationType[] = [
+  {
+    name: 'Precompute responses',
+    description: 'Best when you have a finite set of all inputs. Precompute results and store them in a cache.',
+    score: 2
+  },
+  {
+    name: 'Trigger workflow',
+    description: 'For cases when inputs aren\'t known in advance but asynchronous responses (in minutes) are acceptable.',
+    score: 3
+  },
+  {
+    name: 'Deploy simple service',
+    description: 'For real-time responses with self-operation, without high scale/latency requirements.',
+    score: 3
+  },
+  {
+    name: 'Deploy advanced stack',
+    description: 'For complex real-time serving with high scale or low latency requirements, requiring significant engineering.',
+    score: 5
+  },
+  {
+    name: 'Use managed service',
+    description: 'When you need real-time responses but don\'t want to operate services yourself.',
+    score: 2
+  }
+];
+
 const PREDEFINED_QUESTIONS: Question[] = [
   {
     id: 'taskFrequency',
@@ -75,11 +111,6 @@ const PREDEFINED_QUESTIONS: Question[] = [
     options: ['Not relevant', 'Public data', 'Internal, non-sensitive data', 'Confidential business data', 'Highly sensitive or regulated data']
   },
   {
-    id: 'scalability',
-    text: 'How scalable should the AI solution be for this task?',
-    options: ['Not relevant', 'Limited scale (team/department)', 'Company-wide scale', 'Industry-wide potential', 'Multi-industry or global scale']
-  },
-  {
     id: 'implementationTime',
     text: 'Estimated time to implement and deploy the AI solution:',
     options: ['Not relevant', 'Quick win (< 1 month)', 'Short-term (1-3 months)', 'Medium-term (3-6 months)', 'Long-term (6+ months)']
@@ -102,21 +133,21 @@ const PREDEFINED_QUESTIONS: Question[] = [
     required: true
   },
   {
-    id: 'performanceNeeds',
-    text: 'Do you require large scale or low latency?',
-    options: ['Not relevant', 'No', 'Yes'],
-    required: true
-  },
-  {
     id: 'selfOperation',
     text: 'Are you comfortable operating services by yourself?',
     options: ['Not relevant', 'No', 'Yes'],
     required: true
   },
   {
-    id: 'implementationType',
-    text: 'What type of implementation is most suitable?',
-    options: ['Not relevant', 'Precompute responses', 'Trigger workflow', 'Deploy simple service', 'Deploy advanced stack', 'Use managed service'],
+    id: 'performanceNeeds',
+    text: 'Do you require large scale or low latency?',
+    options: ['Not relevant', 'No', 'Yes'],
+    required: true
+  },
+  {
+    id: 'modelComplexity',
+    text: 'What is the complexity level of the model needed?',
+    options: ['Not relevant', 'Simple (e.g., regression, classification)', 'Moderate (e.g., boosted trees, neural networks)', 'Complex (e.g., LLMs, computer vision)'],
     required: true
   }
 ];
@@ -131,6 +162,21 @@ interface Step {
   }[];
   questions?: Question[];
 }
+
+// Function to determine the recommended implementation type based on answers
+const determineImplementationType = (answers: Record<string, string> = {}): ImplementationType => {
+  if (answers.finiteInputs === 'Yes') {
+    return IMPLEMENTATION_TYPES[0]; // Precompute responses
+  } else if (answers.asyncResponses === 'Yes') {
+    return IMPLEMENTATION_TYPES[1]; // Trigger workflow
+  } else if (answers.selfOperation === 'No') {
+    return IMPLEMENTATION_TYPES[4]; // Use managed service
+  } else if (answers.performanceNeeds === 'Yes') {
+    return IMPLEMENTATION_TYPES[3]; // Deploy advanced stack
+  } else {
+    return IMPLEMENTATION_TYPES[2]; // Deploy simple service
+  }
+};
 
 export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -165,22 +211,21 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
       questions: PREDEFINED_QUESTIONS.slice(0, 6)
     },
     {
-      title: 'Technical Requirements',
+      title: 'Deployment Requirements',
       questions: [
         PREDEFINED_QUESTIONS.find(q => q.id === 'finiteInputs'),
         PREDEFINED_QUESTIONS.find(q => q.id === 'asyncResponses'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'selfOperation'),
         PREDEFINED_QUESTIONS.find(q => q.id === 'performanceNeeds'),
-        PREDEFINED_QUESTIONS.find(q => q.id === 'dataSources'),
-        PREDEFINED_QUESTIONS.find(q => q.id === 'aiInteraction')
+        PREDEFINED_QUESTIONS.find(q => q.id === 'modelComplexity')
       ].filter((q): q is Question => q !== undefined)
     },
     {
       title: 'Implementation Considerations',
       questions: [
-        PREDEFINED_QUESTIONS.find(q => q.id === 'selfOperation'),
-        PREDEFINED_QUESTIONS.find(q => q.id === 'implementationType'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'dataSources'),
+        PREDEFINED_QUESTIONS.find(q => q.id === 'aiInteraction'),
         PREDEFINED_QUESTIONS.find(q => q.id === 'dataSensitivity'),
-        PREDEFINED_QUESTIONS.find(q => q.id === 'scalability'),
         PREDEFINED_QUESTIONS.find(q => q.id === 'implementationTime'),
         PREDEFINED_QUESTIONS.find(q => q.id === 'roi')
       ].filter((q): q is Question => q !== undefined)
@@ -234,9 +279,9 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
      * 2. Data Sources: Number of data sources involved
      * 3. Data Sensitivity: Level of data sensitivity/regulation
      * 4. Implementation Time: Estimated time to implement
-     * 5. Scalability: Required scale of the solution
-     * 6. Self Operation: Comfort with self-operating services
-     * 7. Implementation Type: Type of implementation needed
+     * 5. Self Operation: Comfort with self-operating services
+     * 6. Model Complexity: Level of complexity of the model needed
+     * 7. Implementation Type: Recommended deployment approach (auto-determined)
      * 
      * SCORING METHODOLOGY:
      * - Most questions are scored on a 0-4 scale based on option position
@@ -269,44 +314,15 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
       formData.answers?.dataSources,
       formData.answers?.dataSensitivity,
       formData.answers?.implementationTime,
-      formData.answers?.scalability,
       formData.answers?.selfOperation,
-      formData.answers?.implementationType
+      formData.answers?.modelComplexity
     ];
 
-    // Convert answers to numeric scores
-    const getNumericScore = (answer: string | undefined, questionId: string) => {
-      if (!answer || answer === 'Not relevant') return 0;
-      
-      // Special scoring for new questions
-      if (questionId === 'finiteInputs') {
-        return answer === 'Yes' ? 3 : 5;
-      }
-      if (questionId === 'asyncResponses') {
-        return answer === 'Yes' ? 2 : 4;
-      }
-      if (questionId === 'performanceNeeds') {
-        return answer === 'Yes' ? 5 : 2;
-      }
-      if (questionId === 'selfOperation') {
-        return answer === 'Yes' ? 4 : 2;
-      }
-      if (questionId === 'implementationType') {
-        const scores: Record<string, number> = {
-          'Precompute responses': 2,
-          'Trigger workflow': 3,
-          'Deploy simple service': 3,
-          'Deploy advanced stack': 5,
-          'Use managed service': 2
-        };
-        return scores[answer] || 0;
-      }
-
-      // Default scoring for original questions
-      const options = PREDEFINED_QUESTIONS.find(q => q.options.includes(answer))?.options || [];
-      const index = options.indexOf(answer);
-      return index > 0 ? index : 0;
-    };
+    // Get the recommended implementation type
+    const recommendedImplementation = determineImplementationType(formData.answers);
+    
+    // Add implementation type score to effort factors
+    const implementationTypeScore = recommendedImplementation.score;
 
     // Calculate average scores and scale to 1-10
     const impact = Math.round(
@@ -316,11 +332,13 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
       impactFactors.length * 2.5
     );
 
+    // Include implementation type score in effort calculation
+    const effortSum = effortFactors.reduce((sum, factor, index) => 
+      sum + getNumericScore(factor, ['timeConsuming', 'dataSources', 'dataSensitivity', 
+      'implementationTime', 'selfOperation', 'modelComplexity'][index]), 0);
+    
     const effort = Math.round(
-      effortFactors.reduce((sum, factor, index) => 
-        sum + getNumericScore(factor, ['timeConsuming', 'dataSources', 'dataSensitivity', 
-        'implementationTime', 'scalability', 'selfOperation', 'implementationType'][index]), 0) / 
-      effortFactors.length * 2.5
+      (effortSum + implementationTypeScore) / (effortFactors.length + 1) * 2.5
     );
     
     onSubmit({
@@ -328,7 +346,11 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
       description: formData.description as string,
       impact: Math.max(1, Math.min(10, impact)), // Ensure score is between 1-10
       effort: Math.max(1, Math.min(10, effort)), // Ensure score is between 1-10
-      answers: formData.answers as Record<string, string>
+      answers: {
+        ...formData.answers as Record<string, string>,
+        // Store the auto-selected implementation type
+        implementationType: recommendedImplementation.name
+      }
     });
   };
 
@@ -341,6 +363,37 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
     const requiredQuestions = currentQuestions.filter(q => q.required);
     
     return requiredQuestions.every(q => formData.answers?.[q.id]);
+  };
+
+  const getNumericScore = (answer: string | undefined, questionId: string) => {
+    if (!answer || answer === 'Not relevant') return 0;
+    
+    // Special scoring for new questions
+    if (questionId === 'finiteInputs') {
+      return answer === 'Yes' ? 3 : 5;
+    }
+    if (questionId === 'asyncResponses') {
+      return answer === 'Yes' ? 2 : 4;
+    }
+    if (questionId === 'performanceNeeds') {
+      return answer === 'Yes' ? 5 : 2;
+    }
+    if (questionId === 'selfOperation') {
+      return answer === 'Yes' ? 4 : 2;
+    }
+    if (questionId === 'modelComplexity') {
+      const scores: Record<string, number> = {
+        'Simple (e.g., regression, classification)': 2,
+        'Moderate (e.g., boosted trees, neural networks)': 3,
+        'Complex (e.g., LLMs, computer vision)': 5
+      };
+      return scores[answer] || 0;
+    }
+
+    // Default scoring for original questions
+    const options = PREDEFINED_QUESTIONS.find(q => q.options.includes(answer))?.options || [];
+    const index = options.indexOf(answer);
+    return index > 0 ? index : 0;
   };
 
   return (
@@ -380,12 +433,49 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
           ))
         ) : (
           <div className="space-y-4">
+            {/* Display helpful context for deployment requirements */}
+            {currentStep === 2 && (
+              <div className="p-3 bg-[#F4F5F8]/5 rounded-lg mb-4">
+                <h4 className="text-sm font-medium mb-1">About Deployment Approaches</h4>
+                <p className="text-[#F4F5F8]/80 text-sm mb-2">
+                  The following questions help determine the most appropriate deployment approach for your AI model based on the Outerbounds best practices.
+                </p>
+                <p className="text-[#F4F5F8]/80 text-sm">
+                  Your answers will guide the system to recommend one of these deployment options: precomputing responses, triggering a workflow, deploying a simple service, deploying an advanced stack, or using a managed service.
+                </p>
+              </div>
+            )}
+
+            {/* Display implementation recommendation in the Implementation Considerations step */}
+            {currentStep === 3 && (
+              <div className="p-3 bg-[#F4F5F8]/5 rounded-lg mb-4">
+                <h4 className="text-sm font-medium mb-1">Recommended Implementation Approach:</h4>
+                <div className="text-[#F4F5F8]/80 text-sm">
+                  <p className="font-medium">{recommendedImplementation.name}</p>
+                  <p className="mt-1">{recommendedImplementation.description}</p>
+                </div>
+              </div>
+            )}
+
             {steps[currentStep].questions?.map(question => (
               <div key={question.id}>
                 <label className="block text-sm mb-1">
                   {question.text}
                   {question.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
+                {/* Add descriptive text for key deployment questions */}
+                {question.id === 'finiteInputs' && (
+                  <p className="text-xs text-[#F4F5F8]/60 mb-1">If inputs can be precomputed, like personalized recommendations based on historical data.</p>
+                )}
+                {question.id === 'asyncResponses' && (
+                  <p className="text-xs text-[#F4F5F8]/60 mb-1">If users can wait minutes for results rather than needing immediate responses.</p>
+                )}
+                {question.id === 'selfOperation' && (
+                  <p className="text-xs text-[#F4F5F8]/60 mb-1">Whether you prefer operating services yourself or using managed solutions.</p>
+                )}
+                {question.id === 'performanceNeeds' && (
+                  <p className="text-xs text-[#F4F5F8]/60 mb-1">If your application requires high throughput (many requests/second) or very low latency.</p>
+                )}
                 <select
                   value={formData.answers?.[question.id] || ''}
                   onChange={e => setFormData({
