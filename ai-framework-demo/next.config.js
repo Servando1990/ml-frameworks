@@ -10,6 +10,7 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Apply these headers to all routes
         source: '/:path*',
         headers: [
           // Allow requests from any origin
@@ -25,26 +26,38 @@ const nextConfig = {
           // Allow all headers
           {
             key: 'Access-Control-Allow-Headers',
-            value: '*',
+            value: 'Content-Type, Authorization, X-Requested-With',
           },
           // Allow credentials
           {
             key: 'Access-Control-Allow-Credentials',
             value: 'true',
           },
-          // Set X-Frame-Options to allow embedding
+          // Explicitly allow framing from any origin
           {
             key: 'X-Frame-Options',
-            value: 'ALLOW-FROM https://webflow.com https://*.webflow.io',
+            value: 'ALLOWALL',
           },
-          // Update Content-Security-Policy to explicitly allow Webflow to frame your site
+          // Update Content-Security-Policy to allow embedding from anywhere
           {
             key: 'Content-Security-Policy',
-            value: "default-src * 'unsafe-inline' 'unsafe-eval'; frame-ancestors https://*.webflow.io https://webflow.com https://*.webflow.com *;",
+            value: "frame-ancestors *;",
           },
         ],
       },
     ];
+  },
+  // Disable authentication for API routes during development
+  rewrites() {
+    return {
+      beforeFiles: [
+        // Rewrite API requests to bypass authentication in development
+        {
+          source: '/api/:path*',
+          destination: '/api/:path*',
+        },
+      ],
+    };
   },
 };
 

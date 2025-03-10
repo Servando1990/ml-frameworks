@@ -188,6 +188,9 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
     answers: initialUseCase?.answers || {}
   });
 
+  // Calculate the recommended implementation type
+  const recommendedImplementation = determineImplementationType(formData.answers);
+
   const steps: Step[] = [
     {
       title: 'Basic Information',
@@ -318,9 +321,6 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
       formData.answers?.modelComplexity
     ];
 
-    // Get the recommended implementation type
-    const recommendedImplementation = determineImplementationType(formData.answers);
-    
     // Add implementation type score to effort factors
     const implementationTypeScore = recommendedImplementation.score;
 
