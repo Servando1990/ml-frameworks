@@ -142,25 +142,11 @@ export function AIPrioritizationFramework() {
           <div>
             <span className="font-serif text-4xl tracking-tight">controlthrive</span>
           </div>
-          <div className="mt-3">
-            <svg width="180" height="40">
-              <path
-                d="M40,10 L40,25 L140,25"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                fill="none"
-              />
-              <polygon
-                points="140,25 133,21 133,29"
-                fill="currentColor"
-              />
-            </svg>
-          </div>
         </div>
         
         <div className="self-center mb-2">
           <h1 className="text-3xl font-bold text-center">AI Prioritization Framework</h1>
-          <p className="text-sm text-[#F4F5F8]/60 mt-1 italic text-center">by Servando</p>
+          <p className="text-sm text-[#F4F5F8]/60 mt-1 italic text-center">by <a href="https://www.linkedin.com/in/servando-torres-239a26b0/" target="_blank" rel="noopener noreferrer" className="hover:underline">Servando</a></p>
         </div>
       </div>
       
