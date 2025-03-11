@@ -288,14 +288,6 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
      */
 
     // If we're editing an existing use case and have impact and effort values, use those
-    if (initialUseCase?.impact && initialUseCase?.effort) {
-      onSubmit({
-        name: formData.name as string,
-        description: formData.description as string,
-        impact: initialUseCase.impact,
-        effort: initialUseCase.effort,
-        answers: formData.answers as Record<string, string>
-      });
       return;
     }
 
