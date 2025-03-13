@@ -244,6 +244,18 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
   };
 
   const handleSubmit = () => {
+    // If we're editing an existing use case and have impact and effort values, use those
+    if (initialUseCase?.impact && initialUseCase?.effort) {
+      onSubmit({
+        name: formData.name as string,
+        description: formData.description as string,
+        impact: initialUseCase.impact,
+        effort: initialUseCase.effort,
+        answers: formData.answers as Record<string, string>
+      });
+      return;
+    }
+
     /**
      * CALCULATION METHOD DOCUMENTATION
      * 
@@ -286,10 +298,6 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
      * - Foundation Labs: Low Impact (<5), Low Effort (<5)
      * - Optimization Zone: Low Impact (<5), High Effort (≥5)
      */
-
-    // If we're editing an existing use case and have impact and effort values, use those
-      return;
-    }
 
     // Calculate impact score based on relevant questions (0-10 scale)
     const impactFactors = [
@@ -371,7 +379,7 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
       return answer === 'Yes' ? 5 : 2;
     }
     if (questionId === 'selfOperation') {
-      return answer === 'Yes' ? 4 : 2;
+      return answer === 'Yes' ? 2 : 4;
     }
     if (questionId === 'modelComplexity') {
       const scores: Record<string, number> = {
@@ -522,4 +530,4 @@ export function UseCaseForm({ onSubmit, onCancel, initialUseCase }: UseCaseFormP
       </div>
     </div>
   );
-} 
+}
