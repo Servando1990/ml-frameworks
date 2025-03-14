@@ -70,7 +70,8 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
               value: "Quick Wins",
               position: "center",
               fill: "rgba(74, 222, 128, 0.6)",
-              fontSize: 11
+              fontSize: 14,
+              fontWeight: "bold"
             }}
           />
           <ReferenceArea 
@@ -80,7 +81,8 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
               value: "Strategic Ventures",
               position: "center",
               fill: "rgba(96, 165, 250, 0.6)",
-              fontSize: 11
+              fontSize: 14,
+              fontWeight: "bold"
             }}
           />
           <ReferenceArea 
@@ -90,7 +92,8 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
               value: "Foundation Labs",
               position: "center",
               fill: "rgba(250, 204, 21, 0.6)",
-              fontSize: 11
+              fontSize: 14,
+              fontWeight: "bold"
             }}
           />
           <ReferenceArea 
@@ -100,7 +103,8 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
               value: "Optimization Zone",
               position: "center",
               fill: "rgba(248, 113, 113, 0.6)",
-              fontSize: 11
+              fontSize: 14,
+              fontWeight: "bold"
             }}
           />
 
@@ -116,15 +120,16 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
             dataKey="effort"
             domain={[0, 10]}
             tickCount={6}
-            tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
-            axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
-            tickLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+            tick={{ fill: '#FFFFFF', fontSize: 11 }}
+            axisLine={{ stroke: '#FFFFFF', strokeWidth: 1.5 }}
+            tickLine={{ stroke: '#FFFFFF', strokeWidth: 1.5 }}
             label={{ 
               value: 'Effort', 
               position: 'insideBottom',
               offset: -10,
-              fill: 'rgba(255,255,255,0.5)', 
-              fontSize: 12
+              fill: '#FFFFFF', 
+              fontSize: 13,
+              fontWeight: "bold"
             }}
           />
           <YAxis
@@ -132,16 +137,17 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ useCases }) => {
             dataKey="impact"
             domain={[0, 10]}
             tickCount={6}
-            tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
-            axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
-            tickLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+            tick={{ fill: '#FFFFFF', fontSize: 11 }}
+            axisLine={{ stroke: '#FFFFFF', strokeWidth: 1.5 }}
+            tickLine={{ stroke: '#FFFFFF', strokeWidth: 1.5 }}
             label={{ 
               value: 'Impact', 
               angle: -90, 
               position: 'insideLeft',
               offset: -10,
-              fill: 'rgba(255,255,255,0.5)', 
-              fontSize: 12
+              fill: '#FFFFFF', 
+              fontSize: 13,
+              fontWeight: "bold"
             }}
           />
 

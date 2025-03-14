@@ -179,28 +179,102 @@ export function AIPrioritizationFramework() {
     // Extract implementationType from answers if it exists
     const implementationType = useCase.answers?.implementationType;
     
-    setUseCases([...useCases, { 
+    const newUseCase = { 
       ...useCase, 
       id: Date.now(),
       implementationType: implementationType || 'Not specified'
-    }]);
+    };
+    
+    // Add the use case to the state
+    setUseCases([...useCases, newUseCase]);
+    
+    // Log the submission to our API
+    fetch('/api/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'add_use_case',
+        useCase: newUseCase,
+        timestamp: new Date().toISOString()
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Logging successful:', data);
+    })
+    .catch(error => {
+      console.error('Error logging use case:', error);
+    });
+    
     setShowForm(false);
   };
 
   const handleDeleteUseCase = (id: number) => {
+    // Find the use case before deleting it
+    const useCaseToDelete = useCases.find(useCase => useCase.id === id);
+    
+    // Remove the use case from the state
     setUseCases(useCases.filter(useCase => useCase.id !== id));
+    
+    // Log the deletion to our API
+    if (useCaseToDelete) {
+      fetch('/api/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'delete_use_case',
+          useCase: useCaseToDelete,
+          timestamp: new Date().toISOString()
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Logging successful:', data);
+      })
+      .catch(error => {
+        console.error('Error logging use case deletion:', error);
+      });
+    }
   };
 
   const handleEditUseCase = (updatedUseCase: UseCase) => {
     // Extract implementationType from answers if it exists
     const implementationType = updatedUseCase.answers?.implementationType;
     
+    const finalUpdatedUseCase = {
+      ...updatedUseCase,
+      implementationType: implementationType || updatedUseCase.implementationType || 'Not specified'
+    };
+    
+    // Update the use case in the state
     setUseCases(useCases.map(useCase => 
-      useCase.id === updatedUseCase.id ? {
-        ...updatedUseCase,
-        implementationType: implementationType || updatedUseCase.implementationType || 'Not specified'
-      } : useCase
+      useCase.id === finalUpdatedUseCase.id ? finalUpdatedUseCase : useCase
     ));
+    
+    // Log the edit to our API
+    fetch('/api/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'edit_use_case',
+        useCase: finalUpdatedUseCase,
+        timestamp: new Date().toISOString()
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Logging successful:', data);
+    })
+    .catch(error => {
+      console.error('Error logging use case edit:', error);
+    });
+    
     setEditingUseCase(null);
     setShowForm(false);
   };
