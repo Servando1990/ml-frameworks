@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface LogEntry {
   timestamp: string;
@@ -19,12 +20,24 @@ interface LogEntry {
   userAgent: string;
 }
 
-export default function LogsPage() {
+// Component that uses useSearchParams
+function LogsContent() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secretKey, setSecretKey] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
+  
+  const searchParams = useSearchParams();
+  const urlKey = searchParams.get('key');
+  
+  useEffect(() => {
+    // Check if key is provided in URL
+    if (urlKey) {
+      setSecretKey(urlKey);
+      fetchLogs(urlKey);
+    }
+  }, [urlKey]);
 
   const fetchLogs = async (key: string) => {
     if (!key.trim()) {
@@ -192,5 +205,14 @@ export default function LogsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function LogsPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
+      <LogsContent />
+    </Suspense>
   );
 } 
